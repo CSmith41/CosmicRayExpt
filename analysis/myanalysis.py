@@ -22,11 +22,11 @@ from event import Event, Pulse
 
 parser = argparse.ArgumentParser(description='Analyse CSV file')
 parser.add_argument("-i", "--in_file", help="input file 1")
-parser.add_argument("-i1", "--in_file1", help="input file 2")
-parser.add_argument("-i2", "--in_file2", help="input file 3")
-parser.add_argument("-i3", "--in_file3", help="input file 4")
-parser.add_argument("-i4", "--in_file4", help="input file 5")
-parser.add_argument("-i5", "--in_file5", help="input file 6")
+#parser.add_argument("-i1", "--in_file1", help="input file 2") #Uncomment if making possible to add any filename instead of set ones
+#parser.add_argument("-i2", "--in_file2", help="input file 3")
+#parser.add_argument("-i3", "--in_file3", help="input file 4")
+#parser.add_argument("-i4", "--in_file4", help="input file 5")
+#parser.add_argument("-i5", "--in_file5", help="input file 6")
 #parser.add_argument("-i6", "--in_file6", help="input file 7")
 #parser.add_argument("-i7", "--in_file7", help="input file 8")
 #parser.add_argument("-i8", "--in_file8", help="input file 9")
@@ -58,16 +58,17 @@ def Count(countl,file):
                 countl[pulse.chan] += 1
     return countl
     
-Count(count1000, args.in_file) #Make sure file 1 has highest thresh, file 6 lowest etc
-Count(count900, args.in_file1)
-Count(count800, args.in_file2)
-Count(count700, args.in_file3)
-Count(count600, args.in_file4)
-Count(count500, args.in_file5)
+Count(count1000, "0Chan1000test.dat") #Make sure file 1 has highest thresh, file 6 lowest etc
+Count(count900, "0Chan900test.dat")  
+Count(count800, "0Chan800test.dat")  #Change filename to "args.in_file1" to add any file
+Count(count700, "0Chan700test.dat")
+Count(count600, "0Chan600test.dat")
+Count(count500, "0Chan500test.dat")
+#IMPORTANT: Change filenames to whatever data to analyse
 
 bins = [count1000[0], count900[0],count800[0],count700[0],count600[0],count500[0]]
-thresh = [1000,900,800,700,600,500]
-plt.plot(thresh, bins)
+thresh = [1000,900,800,700,600,500] #IMPORTANT: Change thresholds accordingly
+plt.plot(thresh, bins/30) #IMPORTANT: Change number to however many seconds data ran for
 plt.ylabel("Events/Second")
 plt.xlabel('Threshold (mV)')
 plt.show()
