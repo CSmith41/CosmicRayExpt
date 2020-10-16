@@ -68,10 +68,11 @@ Count(count500, "0Chan500test.dat")
 #IMPORTANT: Change filenames to whatever data to analyse
 
 bins = [count1000[0], count900[0],count800[0],count700[0],count600[0],count500[0]]
+rate = np.divide(bins, 30.)
 thresh = [1000,900,800,700,600,500] #IMPORTANT: Change thresholds accordingly
-error = [np.sqrt(x) for x in bins]
+error = np.divide([np.sqrt(x) for x in bins], 30.)
 
-plt.errorbar(thresh, np.divide(bins,30.), yerr=error, fmt = '.k')
+plt.errorbar(thresh, rate, yerr=error, fmt = '.k')
 #IMPORTANT: Change number to however many seconds data ran for
 plt.ylabel("Rate (Hz)")
 plt.xlabel('Threshold (mV)')
