@@ -68,7 +68,10 @@ Count(count500, "0Chan500test.dat")
 
 bins = [count1000[0], count900[0],count800[0],count700[0],count600[0],count500[0]]
 thresh = [1000,900,800,700,600,500] #IMPORTANT: Change thresholds accordingly
-plt.plot(thresh, bins/30) #IMPORTANT: Change number to however many seconds data ran for
-plt.ylabel("Events/Second")
+error = [np.sqrt(x) for x in bins]
+
+plt.errorbar(thresh, np.divide(bins,30.), yerr=error, fmt = '.k') 
+#IMPORTANT: Change number to however many seconds data ran for
+plt.ylabel("Rate (Hz)")
 plt.xlabel('Threshold (mV)')
 plt.show()
