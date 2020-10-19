@@ -82,7 +82,7 @@ counts_ch2 = [count1000[2],count900[2],count800[2],count700[2],count600[2],count
 counts_ch3 = [count1000[3],count900[3],count800[3],count700[3],count600[3],count500[3],count400[3],count300[3],count200[3],count100[3]]
 
 thresh = [1000,900,800,700,600,500,400,300,200,100] #IMPORTANT: Change thresholds accordingly
-time = 300   #IMPORTANT: Change time accordingly
+time = 300.   #IMPORTANT: Change time accordingly
 
 error0 = [np.sqrt(x)/time for x in counts_ch0]
 error1 = [np.sqrt(x)/time for x in counts_ch1]
@@ -96,7 +96,7 @@ rate3 = [x/time for x in counts_ch3]
 plt.errorbar(thresh, rate0, yerr=error0, fmt = 'b', label = 'Channel 0')
 plt.errorbar(thresh, rate1, yerr=error1, fmt = 'g', label = 'Channel 1')
 plt.errorbar(thresh, rate2, yerr=error2, fmt = 'r', label = 'Channel 2')
-plt.errorbar(thresh, rate3, yerr=error3, fmt = 'm', label = 'Channel 3')
+plt.errorbar(thresh, rate3, yerr=error3, fmt = 'y', label = 'Channel 3')
 plt.ylabel("Rate (Hz)")
 plt.xlabel('Threshold (mV)')
 plt.legend()
