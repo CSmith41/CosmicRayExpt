@@ -21,7 +21,7 @@ import argparse
 from event import Event, Pulse
 
 parser = argparse.ArgumentParser(description='Analyse CSV file')
-parser.add_argument("-i", "--in_file", help="input file 1")
+parser.add_argument("-i", "--in_file", help="input file")
 #parser.add_argument("-i1", "--in_file1", help="input file 2") #Uncomment if making possible to add any filename instead of set ones
 #parser.add_argument("-i1", "--in_file1", help="input file 2")
 #parser.add_argument("-i2", "--in_file2", help="input file 3")
@@ -63,10 +63,13 @@ count580 = [0,0,0,0]
 count600 = [0,0,0,0] 
 # counts per channel
 
+#n_coinc1 = 0 # True no. of events
+#n_coinc2 = 0 # Total no. of triggered events
+
 def Count(countl,file):
     
     ifile = open(file)
-    events= pickle.load(ifile)
+    events = pickle.load(ifile)
     
     for event in events:
         for pulse in event.pulses:
@@ -75,7 +78,37 @@ def Count(countl,file):
                 countl[pulse.chan] += 1
     return countl
     
-Count(count200, "2fthresh200.dat") #Make sure file 1 has highest thresh, file 6 lowest etc
+def Eff(file):
+
+    ifile = open(file)
+    events = pickle.load(ifile)
+    
+    n_coinc1 = 0 # True no. of events  
+    n_coinc2 = 0 # Total no. of triggered events
+
+    for event in events:
+	found0 = False
+	found1 = False
+	found2 = False
+	for pulse in event.pulses:
+	    # only count rising edges
+	    if pulse.edge == 0 and pulse.chan == 0: # Ref channel 1 (change)
+		found0 = True
+	    if pulse.edge == 0 and pulse.chan == 1: # Channel finding efficiency of (change)
+		found1 = True
+	    if pulse.edge == 0 and pulse.chan == 2: # Ref channel 2 (change)
+		found2 = True
+	if found0 and found1 and found2:
+		n_coinc1 += 1
+	if found0 and found2:
+		n_coinc2 += 1
+    
+    efficiency = np.float(n_coinc1)/np.float(n_coinc2)
+
+    return efficiency  
+
+
+Count(count200, "2fthresh200.dat") 
 Count(count220, "2fthresh220.dat")  
 Count(count240, "2fthresh240.dat")  #Change filename to "args.in_file1" to add any file
 Count(count260, "2fthresh260.dat")
@@ -118,11 +151,22 @@ rate1 = [x/time for x in counts_ch1]
 rate2 = [x/time for x in counts_ch2]
 rate3 = [x/time for x in counts_ch3]
 
-plt.errorbar(thresh, rate0, yerr=error0, fmt = 'b', label = 'Channel 0')
-plt.errorbar(thresh, rate1, yerr=error1, fmt = 'g', label = 'Channel 1')
-plt.errorbar(thresh, rate2, yerr=error2, fmt = 'r', label = 'Channel 2')
-plt.errorbar(thresh, rate3, yerr=error3, fmt = 'y', label = 'Channel 3')
-plt.ylabel("Rate (Hz)")
-plt.xlabel('Threshold (mV)')
-plt.legend()
+#plt.errorbar(thresh, rate0, yerr=error0, fmt = 'b', label = 'Channel 0')
+#plt.errorbar(thresh, rate1, yerr=error1, fmt = 'g', label = 'Channel 1')
+#plt.errorbar(thresh, rate2, yerr=error2, fmt = 'r', label = 'Channel 2')
+#plt.errorbar(thresh, rate3, yerr=error3, fmt = 'y', label = 'Channel 3')
+#plt.ylabel("Rate (Hz)")
+#plt.xlabel('Threshold (mV)')
+#plt.legend()
+#plt.show()
+
+print("The efficiency at this threshold is", Eff(args.in_file))
+
+Efficiency = [Eff("2fthresh200.dat"), Eff("2fthresh220.dat"), Eff("2fthresh240.dat"), Eff("2fthresh260.dat"), Eff("2fthresh280.dat"), Eff("2fthresh300.dat"), Eff("2fthresh320.dat"), Eff("2fthresh340.dat"), Eff("2fthresh360.dat"), Eff("2fthresh380.dat"), Eff("2fthresh400.dat"), Eff("2fthresh420.dat"), Eff("2fthresh440.dat"), Eff("2fthresh460.dat"), Eff("2fthresh480.dat"), Eff("2fthresh500.dat"), Eff("2fthresh520.dat"), Eff("2fthresh540.dat"), Eff("2fthresh560.dat"), Eff("2fthresh580.dat"), Eff("2fthresh600.dat")]
+
+plt.plot(thresh, Efficiency)
+plt.ylabel("Efficiency")
+plt.xlabel("Threshold (mV)")
 plt.show()
+
+
