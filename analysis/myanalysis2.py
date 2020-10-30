@@ -92,20 +92,25 @@ def Eff(file):
 	found2 = False
 	for pulse in event.pulses:
 	    # only count rising edges
-	    if pulse.edge == 0 and pulse.chan == 0: # Ref channel 1 (change)
+	    if pulse.edge == 0 and pulse.chan == 1: # Ref channel 1
 		found0 = True
-	    if pulse.edge == 0 and pulse.chan == 1: # Channel finding efficiency of (change)
+	    if pulse.edge == 0 and pulse.chan == 3: # Channel finding efficiency of
 		found1 = True
-	    if pulse.edge == 0 and pulse.chan == 2: # Ref channel 2 (change)
+	    if pulse.edge == 0 and pulse.chan == 2: # Ref channel 2
 		found2 = True
 	if found0 and found1 and found2:
 		n_coinc1 += 1
 	if found0 and found2:
 		n_coinc2 += 1
     
-    efficiency = np.float(n_coinc1)/np.float(n_coinc2)
+    n_coinc1 = np.float(n_coinc1)
+    n_coinc2 = np.float(n_coinc2)
 
-    return efficiency  
+    efficiency = n_coinc1/n_coinc2
+    
+    uncertainty = np.sqrt(((np.sqrt(n_coinc1)/n_coinc2)**2)+((n_coinc1*np.sqrt(n_coinc2))/((n_coinc2)**2))**2)
+
+    return efficiency,uncertainty,n_coinc1,n_coinc2  
 
 
 Count(count200, "2fthresh200.dat") 
@@ -160,13 +165,16 @@ rate3 = [x/time for x in counts_ch3]
 #plt.legend()
 #plt.show()
 
-print("The efficiency at this threshold is", Eff(args.in_file))
+print("The efficiency at this threshold: ", Eff(args.in_file)[0])
+print("It's uncertainty: ", Eff(args.in_file)[1])
+print("True counts: ", Eff(args.in_file)[2])
+print("Total counts: ", Eff(args.in_file)[3])
 
-Efficiency = [Eff("2fthresh200.dat"), Eff("2fthresh220.dat"), Eff("2fthresh240.dat"), Eff("2fthresh260.dat"), Eff("2fthresh280.dat"), Eff("2fthresh300.dat"), Eff("2fthresh320.dat"), Eff("2fthresh340.dat"), Eff("2fthresh360.dat"), Eff("2fthresh380.dat"), Eff("2fthresh400.dat"), Eff("2fthresh420.dat"), Eff("2fthresh440.dat"), Eff("2fthresh460.dat"), Eff("2fthresh480.dat"), Eff("2fthresh500.dat"), Eff("2fthresh520.dat"), Eff("2fthresh540.dat"), Eff("2fthresh560.dat"), Eff("2fthresh580.dat"), Eff("2fthresh600.dat")]
+#Efficiency = [Eff("2fthresh200.dat"), Eff("2fthresh220.dat"), Eff("2fthresh240.dat"), Eff("2fthresh260.dat"), Eff("2fthresh280.dat"), Eff("2fthresh300.dat"), Eff("2fthresh320.dat"), Eff("2fthresh340.dat"), Eff("2fthresh360.dat"), Eff("2fthresh380.dat"), Eff("2fthresh400.dat"), Eff("2fthresh420.dat"), Eff("2fthresh440.dat"), Eff("2fthresh460.dat"), Eff("2fthresh480.dat"), Eff("2fthresh500.dat"), Eff("2fthresh520.dat"), Eff("2fthresh540.dat"), Eff("2fthresh560.dat"), Eff("2fthresh580.dat"), Eff("2fthresh600.dat")]
 
-plt.plot(thresh, Efficiency)
-plt.ylabel("Efficiency")
-plt.xlabel("Threshold (mV)")
-plt.show()
+#plt.plot(thresh, Efficiency)
+#plt.ylabel("Efficiency")
+#plt.xlabel("Threshold (mV)")
+#plt.show()
 
 
