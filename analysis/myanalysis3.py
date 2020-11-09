@@ -53,7 +53,15 @@ def Count(countl,file):
             # only count rising edges
             if pulse.edge == 0:
                 countl[pulse.chan] += 1
-    return countl
+    return count1
+
+def NumCounts(file):
+    
+    ifile = open(file)
+    events = pickle.load(ifile)
+    n_events = len(events)
+
+    return n_events
     
 def Eff(file):
 
@@ -90,10 +98,14 @@ def Eff(file):
     return efficiency,uncertainty,n_coinc1,n_coinc2  
 
 
+dts = []
+
 def Decay(file):
 
     ifile = open(file)
     events = pickle.load(ifile)
+
+    decays = 0.
 
     for event in events:
 	found0 = False
@@ -104,38 +116,52 @@ def Decay(file):
 	time1 = 0.
 	time2 = 0.
 	time3 = 0.
+
+	muon_stop = False
 	
 	for pulse in event.pulses:
-	    if pulse.edge==0 and pulse.chan == 0:
+	    if pulse.edge==0 and pulse.chan == 0 and pulse.time < 40: # Can vary time cond.
 		found0 = True
 		time0 = pulse.time
-	    if pulse.edge==0 and pulse.chan == 1:
+	    if pulse.edge==0 and pulse.chan == 1 and pulse.time < 40:
 		found1 = True
 		time1 = pulse.time
-	    if pulse.edge==0 and pulse.chan == 2:
+	    if pulse.edge==0 and pulse.chan == 2 and pulse.time < 40:
 		found2 = True
 		time2 = pulse.time
-	    if pulse.edge==0 and pulse.chan == 3:
+	    if pulse.edge==0 and pulse.chan == 3 and pulse.time < 40:
 		found3 = True
 		time3 = pulse.time
+	if found0 and found1 and not found2 and not found3:
+	    muon_stop = True
+	    decays += 1.
+	  
+    return decays
+
+
+"""
 	if found0 and found1:
 	    if abs(time1-time0) = 0.:
 		if abs(time2-time1)=0. or abs(time3-time1)=0.:
-		    break
-		
-		    
-		
+		    continue
+		print("it works")		   
+"""	
 
 
 
-Count(count, args.in_file)
-#IMPORTANT: Change filenames to whatever data to analyse
+#Count(count, args.in_file)
 
-print("Counts by channel")
-print("Channel 0 : {} ".format(count[0]))
-print("Channel 1 : {} ".format(count[1]))
-print("Channel 2 : {} ".format(count[2]))
-print("Channel 3 : {} ".format(count[3])) 
+#print("Counts by channel")
+#print("Channel 0 : {} ".format(count[0]))
+#print("Channel 1 : {} ".format(count[1]))
+#print("Channel 2 : {} ".format(count[2]))
+#print("Channel 3 : {} ".format(count[3])) 
+
+print("Read {} events from file".format(NumCounts(args.in_file)))
+
+
+print("Number of decaying muons is {}".format(Decay(args.in_file)))
+
 
 #plt.errorbar(thresh, rate0, yerr=error0, fmt = 'b', label = 'Channel 0')
 #plt.errorbar(thresh, rate1, yerr=error1, fmt = 'g', label = 'Channel 1')
