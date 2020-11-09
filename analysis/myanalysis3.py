@@ -98,14 +98,18 @@ def Eff(file):
     return efficiency,uncertainty,n_coinc1,n_coinc2  
 
 
-dts = []
-
 def Decay(file):
 
     ifile = open(file)
-    events = pickle.load(ifile)
+    events = pickle.load(ifile)	
 
     decays = 0.
+    t_decay = []
+
+    t_decay0 = []
+    t_decay1 = []
+    t_decay2 = []
+    t_decay3 = []
 
     for event in events:
 	found0 = False
@@ -117,36 +121,63 @@ def Decay(file):
 	time2 = 0.
 	time3 = 0.
 
+	foundlate0 = False
+	foundlate1 = False
+	foundlate2 = False
+	foundlate3 = False
+	timelate0 = 0.
+	timelate1 = 0.
+	timelate2 = 0.
+	timelate3 = 0.
+
 	muon_stop = False
 	
 	for pulse in event.pulses:
-	    if pulse.edge==0 and pulse.chan == 0 and pulse.time < 40: # Can vary time cond.
+	    if pulse.edge==0 and pulse.chan == 0 and pulse.time <= 40: # Can vary time cond.
 		found0 = True
 		time0 = pulse.time
-	    if pulse.edge==0 and pulse.chan == 1 and pulse.time < 40:
+	    if pulse.edge==0 and pulse.chan == 1 and pulse.time <= 40:
 		found1 = True
 		time1 = pulse.time
-	    if pulse.edge==0 and pulse.chan == 2 and pulse.time < 40:
+	    if pulse.edge==0 and pulse.chan == 2 and pulse.time <= 40:
 		found2 = True
 		time2 = pulse.time
-	    if pulse.edge==0 and pulse.chan == 3 and pulse.time < 40:
+	    if pulse.edge==0 and pulse.chan == 3 and pulse.time <= 40:
 		found3 = True
-		time3 = pulse.time
-	if found0 and found1 and not found2 and not found3:
+		time3 = pulse.time		
+       	if found0 and found1 and not found2 and not found3:
 	    muon_stop = True
-	    decays += 1.
-	  
-    return decays
+	    decays += 1.       #Adds 1 to no. decays if event has a stopping muon. Decays is no. events with a muon decay.
 
+	if muon_stop:
+	    for pulse in event.pulses:
+		if pulse.edge==0 and pulse.chan == 0 and pulse.time > 40:
+		    foundlate0 = True
+		    timelate0 = pulse.time
+		if pulse.edge==0 and pulse.chan == 1 and pulse.time > 40:
+		    foundlate1 = True
+		    timelate1 = pulse.time
+		if pulse.edge==0 and pulse.chan == 2 and pulse.time > 40:
+		    foundlate2 = True
+		    timelate2 = pulse.time
+		if pulse.edge==0 and pulse.chan == 3 and pulse.time > 40:
+	  	    foundlate3 = True
+		    timelate3 = pulse.time
 
-"""
-	if found0 and found1:
-	    if abs(time1-time0) = 0.:
-		if abs(time2-time1)=0. or abs(time3-time1)=0.:
-		    continue
-		print("it works")		   
-"""	
+	    if foundlate0 and not foundlate2 and not foundlate3:
+		t_decay.append(timelate0)
+		t_decay0.append(timelate0)
+	    if foundlate1 and not foundlate2 and not foundlate3:
+		t_decay.append(timelate1)
+		t_decay1.append(timelate1)
+	    if foundlate2 and not foundlate0 and not foundlate1:
+		t_decay.append(timelate2)
+		t_decay2.append(timelate2)
+	    if foundlate3 and not foundlate0 and not foundlate1:
+		t_decay.append(timelate3)
+		t_decay3.append(timelate3)
 
+    return decays, t_decay, t_decay0, t_decay1, t_decay2, t_decay3
 
 
 #Count(count, args.in_file)
@@ -157,24 +188,17 @@ def Decay(file):
 #print("Channel 2 : {} ".format(count[2]))
 #print("Channel 3 : {} ".format(count[3])) 
 
-print("Read {} events from file".format(NumCounts(args.in_file)))
+#print("Read {} events from file".format(NumCounts(args.in_file)))
 
 
-print("Number of decaying muons is {}".format(Decay(args.in_file)))
+#print("Number of decaying muons is {}".format(Decay(args.in_file)[0]))
 
+print("General list of decay times")
+print(Decay(args.in_file)[1])
 
-#plt.errorbar(thresh, rate0, yerr=error0, fmt = 'b', label = 'Channel 0')
-#plt.errorbar(thresh, rate1, yerr=error1, fmt = 'g', label = 'Channel 1')
-#plt.errorbar(thresh, rate2, yerr=error2, fmt = 'r', label = 'Channel 2')
-#plt.errorbar(thresh, rate3, yerr=error3, fmt = 'y', label = 'Channel 3')
-#plt.ylabel("Rate (Hz)")
-#plt.xlabel('Threshold (mV)')
-#plt.legend()
-#plt.show()
-
-#print("The efficiency at this threshold: ", Eff(args.in_file)[0])
-#print("It's uncertainty: ", Eff(args.in_file)[1])
-#print("True counts: ", Eff(args.in_file)[2])
-#print("Total counts: ", Eff(args.in_file)[3])
-
+print("List of decay times by channel")
+print("Channel 0: {}".format(Decay(args.in_file)[2]))
+print("Channel 1: {}".format(Decay(args.in_file)[3]))
+print("Channel 2: {}".format(Decay(args.in_file)[4]))
+print("Channel 3: {}".format(Decay(args.in_file)[5]))
 
