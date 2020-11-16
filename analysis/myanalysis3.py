@@ -17,6 +17,7 @@ import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 import argparse
+import pandas as pd
 
 from event import Event, Pulse
 
@@ -110,6 +111,8 @@ def Decay(file):
     t_decay1 = []
     t_decay2 = []
     t_decay3 = []
+    
+    dts = []
 
     for event in events:
 	found0 = False
@@ -120,15 +123,6 @@ def Decay(file):
 	time1 = 0.
 	time2 = 0.
 	time3 = 0.
-
-	foundlate0 = False
-	foundlate1 = False
-	foundlate2 = False
-	foundlate3 = False
-	timelate0 = 0.
-	timelate1 = 0.
-	timelate2 = 0.
-	timelate3 = 0.
 
 	muon_stop = False
 	
@@ -147,36 +141,25 @@ def Decay(file):
 		time3 = pulse.time		
        	if found0 and found1 and not found2 and not found3:
 	    muon_stop = True
-	    decays += 1.       #Adds 1 to no. decays if event has a stopping muon. Decays is no. events with a muon decay.
+	    decays += 1.      
+ #Adds 1 to no. decays if event has a stopping muon. Decays is no. events with a muon decay.
 
 	if muon_stop:
 	    for pulse in event.pulses:
 		if pulse.edge==0 and pulse.chan == 0 and pulse.time > 40:
-		    foundlate0 = True
-		    timelate0 = pulse.time
+		    t_decay0.append(pulse.time)
+		    t_decay.append(pulse.time)
 		if pulse.edge==0 and pulse.chan == 1 and pulse.time > 40:
-		    foundlate1 = True
-		    timelate1 = pulse.time
+		    t_decay1.append(pulse.time)
+		    t_decay.append(pulse.time)
 		if pulse.edge==0 and pulse.chan == 2 and pulse.time > 40:
-		    foundlate2 = True
-		    timelate2 = pulse.time
+		    t_decay2.append(pulse.time)
+		    t_decay.append(pulse.time)
 		if pulse.edge==0 and pulse.chan == 3 and pulse.time > 40:
-	  	    foundlate3 = True
-		    timelate3 = pulse.time
+	  	    t_decay3.append(pulse.time)
+		    t_decay.append(pulse.time)
 
-	    if foundlate0 and not foundlate2 and not foundlate3:
-		t_decay.append(timelate0)
-		t_decay0.append(timelate0)
-	    if foundlate1 and not foundlate2 and not foundlate3:
-		t_decay.append(timelate1)
-		t_decay1.append(timelate1)
-	    if foundlate2 and not foundlate0 and not foundlate1:
-		t_decay.append(timelate2)
-		t_decay2.append(timelate2)
-	    if foundlate3 and not foundlate0 and not foundlate1:
-		t_decay.append(timelate3)
-		t_decay3.append(timelate3)
-
+#Need to change to Print the late pulse times in each event, rather than as a whole? Then decide which late pulse to use, as told.
     return decays, t_decay, t_decay0, t_decay1, t_decay2, t_decay3
 
 
@@ -191,7 +174,7 @@ def Decay(file):
 #print("Read {} events from file".format(NumCounts(args.in_file)))
 
 
-#print("Number of decaying muons is {}".format(Decay(args.in_file)[0]))
+print("Number of decaying muons is {}".format(Decay(args.in_file)[0]))
 
 print("General list of decay times")
 print(Decay(args.in_file)[1])
@@ -202,3 +185,7 @@ print("Channel 1: {}".format(Decay(args.in_file)[3]))
 print("Channel 2: {}".format(Decay(args.in_file)[4]))
 print("Channel 3: {}".format(Decay(args.in_file)[5]))
 
+#df = pd.DataFrame({'Decay Time': Decay(args.in_file)[1]})
+#df.groupby('Decay Time', as_index=False).size().plot(kind='line')
+#plt.hist(Decay(args.in_file)[1], bins=20)
+#plt.show
